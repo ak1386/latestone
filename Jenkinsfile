@@ -1,30 +1,24 @@
 pipeline {
-     agent any
-
-	 stages {
-         stage ('Compile Stage'){
-             steps {
-                withMaven(maven : 'maven_3_6_3') {
-                      sh 'mvn clean compile'
-                   }
-               }
-          }
-
-          stage ('Testing Stage') {
-              steps {
-                 withMaven(maven : 'maven_3_6_3') {
-                     sh 'mvn test'
-                      }
-                }
-          }
-
-          stage ('Deployment Stage') {
-             steps {
-                  withMaven(maven : 'maven_3_6_3') {
-                      sh 'mvn deploy'
-                       }
-                 }
-           }
-
-		}
-      }
+    agent any
+    options {
+        skipStagesAfterUnstable()
+    }
+    stages {
+        stage('Build') {
+            steps {
+                sh 'make'
+            }
+        }
+        stage('Test'){
+            steps {
+                sh 'make check'
+                junit 'reports/**/*.xml'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                sh 'make publish'
+            }
+        }
+    }
+}
